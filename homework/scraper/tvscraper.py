@@ -6,6 +6,7 @@ This script scrapes IMDB and outputs a CSV file with highest rated tv series.
 """
 
 import csv
+import re
 from requests import get
 from requests.exceptions import RequestException
 from contextlib import closing
@@ -32,32 +33,49 @@ def extract_tvseries(dom):
     # NOTE: FOR THIS EXERCISE YOU ARE ALLOWED (BUT NOT REQUIRED) TO IGNORE
     # UNICODE CHARACTERS AND SIMPLY LEAVE THEM OUT OF THE OUTPUT.
 
+    # create lists
+    title_serie = []
+    ratings_serie = []
+    genre_serie = []
+    actors_serie= []
+    runtime_serie = []
+    complete_info_series = []
 
-
-    for movie in dom.find_all('div', class_="lister-item-content"):
-
+    # iterate over series on page and add to lists
+    for serie in dom.find_all('div', class_="lister-item-content"):
 
         # extract titles
-        title = movie.find('h3', class_='lister-item-header').a.text
-        print(title)
+        title = serie.find('h3', class_="lister-item-header").a.text
+        title_serie.append(title)
 
         # extract ratings
-        ratings = movie.find('div', class_="inline-block ratings-imdb-rating").strong.text
-        print(ratings)
+        ratings = serie.find('div', class_="inline-block ratings-imdb-rating").strong.text
+        ratings_serie.append(ratings)
 
         # extract genres
-        genre = movie.find('span', class_="genre").text
-        print(genre)
+        genre = serie.find('span', class_="genre").text.strip("\n")
+        genre_serie.append(genre.strip())
 
-        # extract actors
-        actors = movie.find_all('p', class_=None)
-        print(actors)
-    # # extract actors/actresses
-    # for movie in soup.find_all('div', class_="lister-list"):
-    #     actors = movie.lister-item-image.lister-item-content.p.a.text
-    #     print(actors)
+        # create string 
+        actors = ""
 
-    return []   # REPLACE THIS LINE AS WELL AS APPROPRIATE
+        # extract actors 
+        for actor in serie.find_all(class_="", href=re.compile("name")):
+
+            # add actor to actor-string
+            actors += actor.text + ", "
+
+        # add actors to list and remove unneccesarities
+        actors_serie.append(actors.replace("\n", "").strip())
+
+        # extract runtime (only number)
+        runtime = serie.find('span', class_="runtime").contents[0].strip("min")
+        runtime_serie.append(runtime)
+
+    # add lists to the complete_info list
+    complete_info_series = list(zip(title_serie, ratings_serie, genre_serie, actors_serie, runtime_serie))
+      
+    return complete_info_series   
 
 
 def save_csv(outfile, tvseries):
@@ -67,7 +85,9 @@ def save_csv(outfile, tvseries):
     writer = csv.writer(outfile)
     writer.writerow(['Title', 'Rating', 'Genre', 'Actors', 'Runtime'])
 
-    # ADD SOME CODE OF YOURSELF HERE TO WRITE THE TV-SERIES TO DISK
+    # write info tv serie in every row file
+    for serie in tvseries:
+        writer.writerow(serie)
 
 
 def simple_get(url):
