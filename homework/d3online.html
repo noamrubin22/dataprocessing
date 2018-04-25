@@ -17,15 +17,29 @@ var dataset=
         {"year": 2014, "met": 2216508, "zonder": 2569868},     
         {"year": 2015, "met": 2224618, "zonder": 2572783},
         ] 
-    } ;
+};
 
-var data_circle = [5, 10, 15, 20];
-d3.select("body").append("p").text("Weergegeven zijn de huishoudens in Nederland van 1995 tot 2015")
+// data for 'met' group
+met = []; 
+for (i = 0; i < dataset.data.length; i++) {
+    met.push(dataset.data[i].met);
+}
+
+// data for 'zonder' group
+zonder = [];
+for (i = 0; i < dataset.data.length; i++) {
+    zonder.push(dataset.data[i].zonder);
+}
+
+
+var data_circle = [50, 70, 15, 20, 255, 250, 284 ];
+d3.select("body").append("p").text("Minder stellen kiezen voor kinderen")
     .style("font-size", "22px")
 
 // width and height
-var w = 500;
-var h = 50;
+var w = 600;
+var h = 300;
+var padding = 1; 
 
 // create svg element to place our shapes
 var svg = d3.select("body") 
@@ -33,28 +47,86 @@ var svg = d3.select("body")
     .attr("width", w)    
     .attr("height", h);
 
-// // create circle based on data
-// var circles = svg.selectAll("circle")
-//                 
-// bind data to elements
-//              .data(data_circle)                
-//                 
-// returns placeholder reference to new element
-//                 .enter()               
-//                
-// adds circle to DOM
-//                 .append("circle");
-var circles = svg.selectAll("circle")
-            .data(data_circle)                 
-            .enter()                 
-            .append("circle");                 
-            circles.attr("cx", function(d, i) {           
-                console.log(d, i);            
-                return (i * 50) + 25;        })       
-                .attr("cy", h/2)       
-                .attr("r", function(d) {           
-                    return d;       });
-// // create rectangles to visualize data// var rectangle = svg.selectAll("rect")//     .data(dataset)//     .enter()//     .append("rect")
+// create rects
+svg.selectAll("rect")
+   .data(data_circle)
+   .enter()
+   .append("rect")
+   
+   // make sure ratio bars/width is optimal
+   .attr("x", function(d, i) {
+    return i * (w / data_circle.length) 
+    })
+    
+    // let the bars come from down to up
+   .attr("y", function(d) {
+        return h -d;
+   })
+   
+   // make sure padding is always in porportion with width length dataset
+   .attr("width", w / data_circle.length - padding)
+   
+   // height should show the data value
+   .attr("height", function(d) { 
+       return d
+   })
+   
+   // add color
+   .attr("fill", function(d) {
+       return "rgb(0, 0, " + (d * 5) + ")";
+   })
+
+ 
+// create text 
+svg.selectAll("text")
+    .data(data_circle)
+    .enter()
+    .append("text")
+    .text(function(d) {
+        return d;
+    })
+    .attr("x", function(d, i) {
+        return i * (w / data_circle.length) + (w / data_circle.length - padding) /2;
+    })
+    .attr("y", function(d) {
+        return h - d + 12;
+    })
+    .attr("font-family", "sans-serif")
+    .attr("font-size", "11px")
+    .attr("fill", "white")
+    .attr("text-anchor", "middle");
+    
+// create rectangles for the met group
+// var rectangles = svg.selectAll("rect")
+//                     .data(met)
+//                     .enter()
+//                     .append("rect");
+// rectangles.attr("x", 10)
+//             .attr("y", function(d,i) {
+//                 console.log(d, i);
+//                 return i* 80} )
+//             .attr("width", function(d) {
+//                 return d/ 10000})
+//             .attr("height", 50)
+//             .style("fill", "orange");
+
+// // creates rectangles for the zonder group            
+// var rectangles = svg.selectAll("rect")
+//                     .data(met)
+//                     .enter()
+//                     .append("rect");
+// rectangles.attr("x", 10)
+//             .attr("y", function(d,i) {
+//                 console.log(d, i);
+//                 return i* 80} )
+//             .attr("width", function(d) {
+//                 return d/ 10000})
+//             .attr("height", 50)
+//             .style("fill", "blue");
+            
+
+
+        
 console.log(dataset);
 </script>
 </body>
