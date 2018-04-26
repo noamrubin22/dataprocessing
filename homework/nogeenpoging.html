@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<style>
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+
+</style>
+<body>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+//https://www.dashingd3js.com/lessons/basic-chart-grouped-bar-chart 
+var dataset= 
+{
+  data: [
+      {"year": 1995, "met": 1886794, "zonder": 2472739},
+      {"year": 2000, "met": 2062123, "zonder": 2466666},
+      {"year": 2005, "met": 2110295, "zonder": 2531292},
+      {"year": 2010, "met": 2181514, "zonder": 2535114},
+      {"year": 2011, "met": 2187823, "zonder": 2547727},
+      {"year": 2012, "met": 2192158, "zonder": 2558902},
+      {"year": 2013, "met": 2202863, "zonder": 2564326},
+      {"year": 2014, "met": 2216508, "zonder": 2569868},
+      {"year": 2015, "met": 2224618, "zonder": 2572783},
+    ]
+ }
+ 
+ // define svg size and margin
+ var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right, 
+    height = 500 - margin.top - margin.bottom;
+ 
+ // create ordinal scale for years
+ var xfirst = d3.scalePoint()
+        .range([0, width], 0.1);
+
+// create ordinal scale for groups within year
+var xsecond = d3.scalePoint();
+
+// create linear scale for data values
+var y = d3.scaleLinear()
+                .range([height, 0]);
+                
+// setup ordinal scaling functions for colors
+var color = d3.scalePoint()
+                .range(["#98abc5", "#8a89a6"]);
+                
+// create x-axis function
+var xAxis = d3.axisBottom()
+                .scale(xfirst);
+            
+// create y-axis function
+var yAxis = d3.axisLeft()
+                .scale(y)
+                
+                // make sure 2 numbers are being showed
+                .tickFormat(d3.format(".2s"))
+
+// create svg container
+var svg = d3.select("body")
+            .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        
+            
+
+// set domain for x-axis groups
+xfirst.domain(dataset.data(function(d) { return d.year; }));
+
+
+</script>
+</body>
+</html>
