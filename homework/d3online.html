@@ -1,70 +1,98 @@
-<!-- source is https://bl.ocks.org/mbostock/4060366 --><!DOCTYPE html>
+<!DOCTYPE html>
 <html>
+<style>
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+
+</style>
 <body>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
-
 var dataset= 
 {   
     data: [       
-        {"year": 1995, "met": 1886794, "zonder": 2472739},
-        {"year": 2000, "met": 2062123, "zonder": 2466666},      
-        {"year": 2005, "met": 2110295, "zonder": 2531292},       
-        {"year": 2010, "met": 2181514, "zonder": 2535114},     
-        {"year": 2011, "met": 2187823, "zonder": 2547727},       
-        {"year": 2012, "met": 2192158, "zonder": 2558902},      
-        {"year": 2013, "met": 2202863, "zonder": 2564326},       
-        {"year": 2014, "met": 2216508, "zonder": 2569868},     
-        {"year": 2015, "met": 2224618, "zonder": 2572783},
+        {"year": 1995, "zonder": 2472739},
+        {"year": 2000, "zonder": 2466666},      
+        {"year": 2005, "zonder": 2531292},       
+        {"year": 2010, "zonder": 2535114},     
+        {"year": 2011, "zonder": 2547727},       
+        {"year": 2012, "zonder": 2558902},      
+        {"year": 2013, "zonder": 2564326},       
+        {"year": 2014, "zonder": 2569868},     
+        {"year": 2015, "zonder": 2572783},
         ] 
 };
-
-// data for 'met' group
-met = []; 
-for (i = 0; i < dataset.data.length; i++) {
-    met.push(dataset.data[i].met);
-}
-
-// data for 'zonder' group
+            
+// create array with data
 zonder = [];
 for (i = 0; i < dataset.data.length; i++) {
     zonder.push(dataset.data[i].zonder);
 }
 
-
-var data_circle = [50, 70, 15, 20, 255, 250, 284 ];
+// write text
 d3.select("body").append("p").text("Minder stellen kiezen voor kinderen")
     .style("font-size", "22px")
+    
+// idea of margin taken from https://stackoverflow.com/questions/35997408/d3-hide-overflow-of-the-chart-area-when-y-axis-has-a-min-and-max
+// Set the dimensions of the canvas / graph
+var margin = {top: 30, right: 20, bottom: 40, left: 50},
+	w = 600 - margin.left - margin.right,
+	h = 370 - margin.top - margin.bottom,
+	padding = 2;
 
-// width and height
-var w = 600;
-var h = 300;
-var padding = 1; 
+// define x-axis
+var xAxis = d3.axisBottom()
+                .scale(xScale)
+                .ticks(8);
+
+// scale data
+var xScale = d3.scaleLinear()
+                    .domain([0, d3.max(dataset.data, function(d) {
+                        return d.year; })])
+                    .range([padding , w - padding])
+                    
+
+var yScale = d3.scaleLinear()
+                    .domain([0, d3.max(dataset.data, function(d) {
+                        return d.zonder })])
+                    .range([padding, h - padding])
+                 
 
 // create svg element to place our shapes
 var svg = d3.select("body") 
     .append("svg")    
-    .attr("width", w)    
-    .attr("height", h);
-
+        .attr("width", w + margin.left + margin.right)    
+        .attr("height", h + margin.left + margin.bottom)
+    .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
 // create rects
 svg.selectAll("rect")
-   .data(data_circle)
+   .data(zonder)
    .enter()
    .append("rect")
    
    // make sure ratio bars/width is optimal
    .attr("x", function(d, i) {
-    return i * (w / data_circle.length) 
+    return i * (w / zonder.length) 
     })
     
     // let the bars come from down to up
    .attr("y", function(d) {
-        return h -d;
+        return h - yScale(d);
    })
    
    // make sure padding is always in porportion with width length dataset
-   .attr("width", w / data_circle.length - padding)
+   .attr("width", w / zonder.length - padding)
    
    // height should show the data value
    .attr("height", function(d) { 
@@ -75,59 +103,35 @@ svg.selectAll("rect")
    .attr("fill", function(d) {
        return "rgb(0, 0, " + (d * 5) + ")";
    })
-
  
 // create text 
 svg.selectAll("text")
-    .data(data_circle)
+    .data(zonder)
     .enter()
     .append("text")
     .text(function(d) {
         return d;
     })
     .attr("x", function(d, i) {
-        return i * (w / data_circle.length) + (w / data_circle.length - padding) /2;
+        return i * (w / zonder.length) + (w / zonder.length - padding) /2;
     })
     .attr("y", function(d) {
-        return h - d + 12;
+        return h - d ;
     })
     .attr("font-family", "sans-serif")
     .attr("font-size", "11px")
     .attr("fill", "white")
     .attr("text-anchor", "middle");
+
+// generate axis
+svg.append("g")
     
-// create rectangles for the met group
-// var rectangles = svg.selectAll("rect")
-//                     .data(met)
-//                     .enter()
-//                     .append("rect");
-// rectangles.attr("x", 10)
-//             .attr("y", function(d,i) {
-//                 console.log(d, i);
-//                 return i* 80} )
-//             .attr("width", function(d) {
-//                 return d/ 10000})
-//             .attr("height", 50)
-//             .style("fill", "orange");
-
-// // creates rectangles for the zonder group            
-// var rectangles = svg.selectAll("rect")
-//                     .data(met)
-//                     .enter()
-//                     .append("rect");
-// rectangles.attr("x", 10)
-//             .attr("y", function(d,i) {
-//                 console.log(d, i);
-//                 return i* 80} )
-//             .attr("width", function(d) {
-//                 return d/ 10000})
-//             .attr("height", 50)
-//             .style("fill", "blue");
-            
-
-
+    // assign "axis" class
+    .attr("class", "axis")
+    // .attr("transform", "translate(0," + (h - padding) + ")")
+    .attr("transform", "translate(0," + (h - padding) + ")")
+    .call(xAxis);
         
-console.log(dataset);
 </script>
 </body>
 </html>
