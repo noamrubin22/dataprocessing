@@ -7,77 +7,154 @@
     stroke: black;
     shape-rendering: crispEdges;
 }
-
 .axis text {
     font-family: sans-serif;
     font-size: 11px;
 }
-
 </style>
 <body>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
-//https://www.dashingd3js.com/lessons/basic-chart-grouped-bar-chart 
 var dataset= 
 {
   data: [
-      {"year": 1995, "met": 1886794, "zonder": 2472739},
-      {"year": 2000, "met": 2062123, "zonder": 2466666},
-      {"year": 2005, "met": 2110295, "zonder": 2531292},
-      {"year": 2010, "met": 2181514, "zonder": 2535114},
-      {"year": 2011, "met": 2187823, "zonder": 2547727},
-      {"year": 2012, "met": 2192158, "zonder": 2558902},
-      {"year": 2013, "met": 2202863, "zonder": 2564326},
-      {"year": 2014, "met": 2216508, "zonder": 2569868},
-      {"year": 2015, "met": 2224618, "zonder": 2572783},
+      {"year": 1995, "zonder": 2472739},
+      {"year": 2000, "zonder": 2466666},
+      {"year": 2005, "zonder": 2531292},
+      {"year": 2010, "zonder": 2535114},
+      {"year": 2011, "zonder": 2547727},
+      {"year": 2012, "zonder": 2558902},
+      {"year": 2013, "zonder": 2564326},
+      {"year": 2014, "zonder": 2569868},
+      {"year": 2015, "zonder": 2572783},
     ]
- }
- 
- // define svg size and margin
- var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = 960 - margin.left - margin.right, 
-    height = 500 - margin.top - margin.bottom;
- 
- // create ordinal scale for years
- var xfirst = d3.scalePoint()
-        .range([0, width], 0.1);
+ };
+     
+// create array with datavalues
+zonder = [];
+for (i = 0; i < dataset.data.length; i++) {
+    zonder.push(dataset.data[i].zonder);
+}
 
-// create ordinal scale for groups within year
-var xsecond = d3.scalePoint();
+// create array with years
+years = [];
+for (i = 0; i < dataset.data.length; i++) {
+    years.push(dataset.data[i].years);
+}
 
-// create linear scale for data values
-var y = d3.scaleLinear()
-                .range([height, 0]);
-                
-// setup ordinal scaling functions for colors
-var color = d3.scalePoint()
-                .range(["#98abc5", "#8a89a6"]);
-                
-// create x-axis function
+// write text
+d3.select("body").append("p").text("Minder stellen kiezen voor kinderen")
+    .style("font-size", "22px")
+    
+// idea of margin taken from https://stackoverflow.com/questions/35997408/d3-hide-overflow-of-the-chart-area-when-y-axis-has-a-min-and-max
+// Set the dimensions of the canvas / graph
+var margin = {top: 30, right: 80, bottom: 120, left: 100},
+	w = 700 - margin.left - margin.right,
+	h = 370 - margin.top - margin.bottom,
+	padding = 2;
+	
+// create svg element to place our shapes
+var svg = d3.select("body") 
+    .append("svg")    
+        .attr("width", w + margin.left + margin.right)    
+        .attr("height", h + margin.top + margin.bottom)
+    .append("g")
+        .attr("transform", "translate(" + margin.left + ",0)");
+            
+// scale data
+var xScale = d3.scaleBand()
+                    .domain(years)
+                    .range([0, w]); 
+                    
+                    
+var yScale = d3.scaleLinear()
+                    .domain([d3.min(dataset.data, function(d) {
+                        return d.zonder }), d3.max(dataset.data, function(d) {
+                        return d.zonder })])
+                    .range([h, 0])
+                    .nice();
+
+// define x-axis
 var xAxis = d3.axisBottom()
-                .scale(xfirst);
-            
-// create y-axis function
-var yAxis = d3.axisLeft()
-                .scale(y)
+                .scale(xScale)
+                .ticks(8);
                 
-                // make sure 2 numbers are being showed
-                .tickFormat(d3.format(".2s"))
+// define y-axis
+var yAxis = d3.axisLeft()
+                .scale(yScale)
+                .ticks(5);
 
-// create svg container
-var svg = d3.select("body")
-            .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+// add axes
+svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(0," + (h - padding) + ")")
+    .call(xAxis);
+
+svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(" + padding + ",0)")
+    .call(yAxis);
+    
+// // create rectangles
+// svg.selectAll("rect")
+//   .data(zonder)
+//   .enter()
+//   .append("rect")
+   
+//   // make sure ratio bars/width is optimal
+//   .attr("x", function(d, i) {
+//     return i * ((w - margin.left) / zonder.length - padding) + margin.left; 
+//     })
+    
+//     // let the bars come from down to up
+//   .attr("y", function(d) {
+//         return yScale(d);
+//   })
+   
+//   // make sure padding is always in porportion with width length dataset
+// //   .attr("width", w / zonder.length - padding)
+//     .attr("width", function(d) { 
+//         return (w / zonder.length);
+//     })
+   
+//   // height should show the data value
+//   .attr("height", function(d) { 
+//       return yScale(d);
+//   })
+   
+//   // add color
+//   .attr("fill", function(d) {
+//       return "rgb(0, 0, " + (d * 5) + ")";
+//   })
+ 
+// // create text 
+// svg.selectAll("text")
+//     .data(zonder)
+//     .enter()
+//     .append("text")
+//     .text(function(d) {
+//         return d;
+//     })
+//     .attr("x", function(d, i) {
+//         return i * (w / zonder.length) + (w / zonder.length - padding) /2;
+//     })
+//     .attr("y", function(d) {
+//         return h - d ;
+//     })
+//     .attr("font-family", "sans-serif")
+//     .attr("font-size", "11px")
+//     .attr("fill", "white")
+//     .attr("text-anchor", "middle");
+    
+// generate axis
+svg.append("g")
+    
+    // assign "axis" class
+    .attr("class", "axis")
+    // .attr("transform", "translate(0," + (h - padding) + ")")
+    .attr("transform", "translate(0," + (h - padding) + ")")
+    .call(xAxis);
         
-            
-
-// set domain for x-axis groups
-xfirst.domain(dataset.data(function(d) { return d.year; }));
-
-
 </script>
 </body>
 </html>
