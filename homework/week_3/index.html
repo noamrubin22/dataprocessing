@@ -1,0 +1,213 @@
+<! --
+- Name: Noam Rubin
+- Course: Dataprocessing
+- Date: 29/04/2018
+-
+- This script visualizes the amount of families without children in the Netherland for the age of 40
+- from 1995 until 2015. The created barchart is interactive. Due a crashed laptop I created this script
+- through an online d3 editor. Source: https://www.tutorialspoint.com/online_d3js_editor.php
+-- !>
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+<style>
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+    div.tooltip {
+      position: absolute;
+      text-align: center;
+      width: 60px;
+      height: 28px;
+      padding: 2px;
+      font: 12px sans-serif;
+      background: lightsteelblue;
+      border: 0px;
+      border-radius: 8px;
+      pointer-events: none;
+    }
+    
+</style>
+<body>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+var dataset= 
+[
+  {"year": 1995, "totaal": 105990, "zonder": 14666},
+  {"year": 2000, "totaal": 113120, "zonder": 16559},
+  {"year": 2005, "totaal": 120292, "zonder": 18003},
+  {"year": 2010, "totaal": 117954, "zonder": 17075},
+  {"year": 2011, "totaal": 113832, "zonder": 16564},
+  {"year": 2012, "totaal": 108998, "zonder": 15578},
+  {"year": 2013, "totaal": 102910, "zonder": 14597},
+  {"year": 2014, "totaal": 94647, "zonder": 13190},
+  {"year": 2015, "totaal": 90893, "zonder": 12146}
+];
+    
+// create array with years as string values
+years = [];
+for (i = 0; i < dataset.length; i++) {
+    years.push('' + dataset[i].year)
+}
+
+// add title
+d3.select("head")
+    .append("title")
+    .text("The amount of couples without children at 40");
+
+// write text
+d3.select("body")
+    .append("h1")
+    .text("The amount of couples without children at 40");
+
+d3.select("body")
+    .append("h4")
+    .text("Noam Rubin 10800565");
+    
+d3.select("body")
+    .append("p")
+    .text("This barchart is showing the amount of families with an age of 40\
+            that don't have children. By moving the mouse over the bars you \
+            can see the percentage of families without children for each year.\
+            This data is collected in The Netherlands.")
+    
+
+// idea of margin taken from https://stackoverflow.com/questions/35997408/d3-hide-overflow-of-the-chart-area-when-y-axis-has-a-min-and-max
+// Set the dimensions of the canvas / graph
+var margin = {top: 40, right: 20, bottom: 30, left: 40},
+	w = 960 - margin.left - margin.right,
+	h = 500 - margin.top - margin.bottom,
+	padding = 2,
+	bars = dataset.length,
+	widthBar = (w - padding * bars)/ bars; 
+
+// append tooltip
+var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+// create svg element to place shapes
+var svg = d3.select("body") 
+    .append("svg")    
+        .attr("width", w + margin.left + margin.right)    
+        .attr("height", h + margin.top + margin.bottom)
+    .append("g")
+        .attr("transform", "translate(" + margin.left + ",0)");
+
+// scale data
+var xScale = d3.scaleBand()
+                    .domain(years)
+                    .range([margin.left, w + margin.left], .1); 
+                    
+                    
+var yScale = d3.scaleLinear()
+                    .domain([0, d3.max(dataset, function(d) { return d.zonder })])
+                    .range([h, 0 + margin.top]);
+                    
+// define axes
+var xAxis = d3.axisBottom()
+                .scale(xScale);
+                
+var yAxis = d3.axisLeft()
+                .scale(yScale)
+                .ticks(8);
+
+// generate axes
+svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(0," + (h + margin.top - margin.bottom + padding) + ")")
+    .call(xAxis);    
+    
+svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(" + margin.right + ",0)")
+    .call(yAxis);
+
+// append titles axes
+svg.append("text")
+    .attr("class", "axis")
+    .attr("transform", "rotate(-90)")
+    .attr("y", margin.left - 80 )
+    .attr("x", 0 - (h/2) + margin.top)
+    .attr("dy", "1em")
+    .text("Families without children")
+    
+svg.append("text")
+    .attr("class", "axis")
+    .attr("transform",
+   
+        "translate(" + (w - margin.right + 20) + " ," + 
+                       (h + margin.top + 10) + ")")
+   .style("text-anchor", "middle")
+   .text("Years");
+     
+// create rectangles
+svg.selectAll("rect")
+  .data(dataset)
+  .enter()
+  .append("rect")
+   
+  // make sure ratio bars/width is optimal
+  .attr("x", function(d,i) {
+    return i * (widthBar + padding) + margin.left; 
+    })
+    
+    // let the bars come from down to up
+  .attr("y", function(d) {
+        return (yScale(d.zonder) + margin.top);
+  })
+   
+  // make sure padding is always in porportion with width length dataset
+  .attr("width", widthBar)
+ 
+    // height should show the data value
+        .attr("height", function(d) { 
+          return (h- yScale(d.zonder) - margin.bottom);
+    })
+   
+    // add color 
+    .attr("fill", function(d) {
+        return "rgb(0, 0, " + (d.zonder * 10) + ")";
+    })
+    
+    // inspired by tooltip https://bl.ocks.org/d3noob/257c360b3650b9f0a52dd8257d7a2d73
+    // when you touch a rectangle with mouse
+    .on("mouseover", function(d) {
+        d3.select(this)
+            .attr("fill", "orange");
+        div.transition()
+        .duration(200)
+        .style("opacity", .9);
+    
+    // show percentage families without children per year
+    div.html((Math.round((d.zonder/d.totaal * 100)*10)/10)+ "%")
+        .style("left", (d3.event.pageX) + "px")
+        .style("top", (d3.event.pageY - 28) + "px");
+        })
+    
+    // when you leave area with mouse
+    .on("mouseout", function(d) {
+        d3.select(this)
+            .attr("fill", "blue");
+        div.transition()
+            .duration(500)
+            .style("opacity", 0);
+        });
+
+// show source data
+d3.select("body").append("a").attr("href", "https://opendata.cbs.nl/statline/#/CBS/nl/dataset/37975/table?ts=1525012002484").html("Source: CBS");
+        
+</script>
+</body>
+</html>
