@@ -22,7 +22,7 @@ window.onload = function() {
 
 		// create dataset variable
 		var dataset = JSON.parse(response[0].responseText).dataSets[0].observations;
-		// console.log(dataset);
+		console.log(dataset);
 		var data = JSON.parse(response[0].responseText);
 		console.log(data);
 
@@ -101,8 +101,103 @@ window.onload = function() {
 		var years = [year2011, year2012, year2013];
 		console.log(years);
 
-
+		oneYear = years[0];
 
  	console.log('Yes, you can!')
-	};
+	
+	/// Set the dimensions of the canvas / graph
+	var margin = {top: 20, right: 20, bottom: 30, left: 40}
+	var fullWidth = 750;
+	var fullHeight = 500;
+	var padding = 2; 
+	var w = fullWidth - margin.left - margin.right;
+	var h = fullHeight - margin.top - margin.bottom;
+	
+	
+	// create svg element to place shapes
+	var svg = d3.select("body") 
+	    .append("svg")    
+	        .attr("width", fullWidth)    
+	        .attr("height", fullHeight)
+	    .append("g")
+	        .attr("transform", "translate(" + margin.left + ",0)");
+
+	// scale data
+	var xScale = d3.scaleLinear()
+	  					.domain([d3.min(oneYear, function(d) {
+	  						return d.fertility }), d3.max(oneYear, function(d) {
+	  							return d.fertility })])
+	                    .range([margin.left, w + margin.left], .1); 
+	                    
+                    
+	var yScale = d3.scaleLinear()
+	                    .domain([0, d3.max(oneYear, function(d) { 
+	                    	return d.populationrate })])
+	                    .range([h, 0 + margin.top]);
+                    
+	// define axes
+	var xAxis = d3.axisBottom()
+	                .scale(xScale);
+	                
+	var yAxis = d3.axisLeft()
+	                .scale(yScale)
+	                .ticks(8);
+
+	// generate axes
+	svg.append("g")
+	    .attr("class", "axis")
+	    .attr("transform", "translate(0," + (h + margin.top - margin.bottom + padding) + ")")
+	    .call(xAxis);    
+	    
+	svg.append("g")
+	    .attr("class", "axis")
+	    .attr("transform", "translate(" + margin.right + ",0)")
+	    .call(yAxis);
+
+	// scaleOrdinal
+	var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+	// append titles axes
+	svg.append("text")
+		.attr("class", "axis")
+		.attr("transform", "rotate(-90)")
+		.attr("y", margin.left - 80 )
+		.attr("x", 0 - (h/2) + margin.top)
+		.attr("dy", "1em")
+		.text("Fertility rate")
+
+svg.append("text")
+    .attr("class", "axis")
+    .attr("transform",
+   
+        "translate(" + (w - margin.right + 20) + " ," + 
+                       (h + margin.top + 10) + ")")
+   .style("text-anchor", "middle")
+   .text("Population rate");
+
+// create legend
+var legend = svg.selectAll(".legend")
+			.data(color.domain())
+			.enter().append('g')
+			.attr("class", "legend")
+			.attr('transform', function(d,i) { return 'translate(0,' + i * 20 + ")"; });
+     
+// give x value equal to the legend elements. 
+// no need to define a function for fill, this is automatically fill by color.
+legend.append("rect")
+	.attr("x", w)
+	.attr("width", 18)
+	.attr("height", 18)
+	.style("fill", color);
+
+// create circles
+svg.selectAll(".dot")
+  .data(oneYear)
+  .enter()
+  .append("circle")
+  .attr("r", 3.5)
+  .attr("cx", function(d) { return xScale(d.fertility); })
+  .attr("cy", function(d) { return yScale(d.populationrate); })
+   
+};
 };
