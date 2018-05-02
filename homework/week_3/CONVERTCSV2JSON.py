@@ -7,7 +7,10 @@ with open("huishoudens.csv", "r") as csv_file:
 	clean_reader = reader
 	rows = list(csv_file)
 
-	for elem in rows:
+data = {}
+data
+
+	for element in rows:
 		clean_rows =rows.extend(elem.strip().split(";"))
 
 	print(clean_rows)
