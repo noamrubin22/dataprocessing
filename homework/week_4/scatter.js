@@ -40,6 +40,7 @@ window.onload = function() {
 			}
 		};
 
+
 		// iterate over subjects
 		for (var i = 0; i < 2; i++) {
 
@@ -105,35 +106,44 @@ window.onload = function() {
 
  	console.log('Yes, you can!')
 	
+	///////////////////////////// start creating scatterplot ///////////////////////////// 
+
 	/// Set the dimensions of the canvas / graph
-	var margin = {top: 20, right: 20, bottom: 30, left: 40}
-	var fullWidth = 750;
-	var fullHeight = 500;
+	var margin = {top: 20, right: 20, bottom: 30, left: 40, legend: 10};
+	var fullWidth = 900;
+	var fullHeight = 450;
 	var padding = 2; 
 	var w = fullWidth - margin.left - margin.right;
 	var h = fullHeight - margin.top - margin.bottom;
-	
-	
+
 	// create svg element to place shapes
 	var svg = d3.select("body") 
-	    .append("svg")    
-	        .attr("width", fullWidth)    
-	        .attr("height", fullHeight)
-	    .append("g")
-	        .attr("transform", "translate(" + margin.left + ",0)");
+				    .append("svg")    
+				        .attr("width", fullWidth)    
+				        .attr("height", fullHeight)
+				        .attr("background-color", "darkblue") 
+				    .append("g")
+				        .attr("transform", "translate(" + margin.left + ",0)")
+				        .attr("fill", "orange");
+
+	///////////////////////////// define axes ///////////////////////////// 
 
 	// scale data
 	var xScale = d3.scaleLinear()
 	  					.domain([d3.min(oneYear, function(d) {
 	  						return d.fertility }), d3.max(oneYear, function(d) {
 	  							return d.fertility })])
-	                    .range([margin.left, w + margin.left], .1); 
+	                    .range([0, w - margin.left - margin.right], .1); 
 	                    
                     
 	var yScale = d3.scaleLinear()
-	                    .domain([0, d3.max(oneYear, function(d) { 
-	                    	return d.populationrate })])
-	                    .range([h, 0 + margin.top]);
+	                    .domain([d3.max(oneYear, function(d) {
+	  						return d.populationrate }), 0])
+	                    .range([margin.left, h], .1);
+
+	// create a colorscale
+	var color = d3.scaleSequential(d3.interpolateRainbow)
+						.domain([0,20]);             
                     
 	// define axes
 	var xAxis = d3.axisBottom()
@@ -146,58 +156,74 @@ window.onload = function() {
 	// generate axes
 	svg.append("g")
 	    .attr("class", "axis")
-	    .attr("transform", "translate(0," + (h + margin.top - margin.bottom + padding) + ")")
+	    .attr("transform", "translate(0," + (h) + ")")
 	    .call(xAxis);    
 	    
 	svg.append("g")
 	    .attr("class", "axis")
-	    .attr("transform", "translate(" + margin.right + ",0)")
+	    .attr("transform", "translate(" + (0) + ",0)")
 	    .call(yAxis);
-
-	// scaleOrdinal
-	var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 	// append titles axes
 	svg.append("text")
 		.attr("class", "axis")
 		.attr("transform", "rotate(-90)")
-		.attr("y", margin.left - 80 )
-		.attr("x", 0 - (h/2) + margin.top)
+		.attr("y", margin.left - 85 )
+		.attr("x", 0 - (h/2) + margin.bottom + margin.top)
 		.attr("dy", "1em")
-		.text("Fertility rate")
+		.text("Population rate")
 
-svg.append("text")
-    .attr("class", "axis")
-    .attr("transform",
-   
-        "translate(" + (w - margin.right + 20) + " ," + 
-                       (h + margin.top + 10) + ")")
-   .style("text-anchor", "middle")
-   .text("Population rate");
+	svg.append("text")
+	    .attr("class", "axis")
+	    .attr("transform", "translate(" + (w - margin.right - margin.left) + " ," + 
+	                       (h + margin.top + 10) + ")")
+	   .style("text-anchor", "middle")
+	   .text("Fertility");
 
-// create legend
-var legend = svg.selectAll(".legend")
-			.data(color.domain())
-			.enter().append('g')
-			.attr("class", "legend")
-			.attr('transform', function(d,i) { return 'translate(0,' + i * 20 + ")"; });
-     
-// give x value equal to the legend elements. 
-// no need to define a function for fill, this is automatically fill by color.
-legend.append("rect")
-	.attr("x", w)
-	.attr("width", 18)
-	.attr("height", 18)
-	.style("fill", color);
+	// create circles
+	svg.selectAll("circle")
+		  .data(oneYear)
+		  .enter()
+		  .append("circle")
+		  .attr("r", 5)
+		  .attr("cx", function(d) { return xScale(d.fertility); })
+		  .attr("cy", function(d) { return yScale(d.populationrate); })
+		  .attr("fill", function(d, i) { return color(i) });
+	
+	///////////////////////////// create legend ////////////////////////////// 
 
-// create circles
-svg.selectAll(".dot")
-  .data(oneYear)
-  .enter()
-  .append("circle")
-  .attr("r", 3.5)
-  .attr("cx", function(d) { return xScale(d.fertility); })
-  .attr("cy", function(d) { return yScale(d.populationrate); })
-   
-};
+	// create countries for legend
+	var countries = ["Ireland", "Israël", "Great- Britain", "Japan", "Spain", "Hungary", "New Zealand", "Poland", "Czech Republic", "Mexico", "Luxembourg", "Finland", "Netherlands", "Australia", "Italy", "Korea"];
+
+	//
+	var legend = svg.selectAll("legend")
+				.data(countries)
+				.enter()
+				.append("g")
+				.attr("class", "legend")
+				.attr("transform", function(d,i) {
+					 return 'translate(0,' + i * 20 + ')';
+					});
+
+	// add legend colors
+	legend.append("rect")
+		.attr('x', w + 10)
+		.attr("y", 50)
+		.attr('width', 10)
+		.attr('height', 10)
+		.style('fill', function(d,i ) { 
+			return color(i) });
+
+
+	// add text with country names
+	legend.append('text')
+			.attr('x', w + margin.right - 15)
+			.attr('y', 57)
+			.attr('dy', '.20em')
+			.style('text-anchor', 'end')
+			.style("font-size", "14px")
+			.text(function(d) {
+				return d });
+	   
+	};
 };
