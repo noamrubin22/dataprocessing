@@ -22,7 +22,7 @@ var year2013;
 window.onload = function() {
 
 	// create variable
-	var population = "http://stats.oecd.org/SDMX-JSON/data/CSPCUBE/EVOPOP_G1+FERTILITY_T1.AUS+FIN+IRL+ISR+ITA+KOR+LUX+MEX+NLD+NZL+ESP+GBR/all?startTime=2011&endTime=2013&dimensionAtObservation=allDimensions&pid=25e3f0d7-ac74-4b1b-a32a-84c81b3d3456"
+	var population = "https://stats.oecd.org/SDMX-JSON/data/CSPCUBE/EVOPOP_G1+FERTILITY_T1.AUS+FIN+IRL+ISR+ITA+KOR+LUX+MEX+NLD+NZL+ESP+GBR/all?startTime=2011&endTime=2013&dimensionAtObservation=allDimensions&pid=25e3f0d7-ac74-4b1b-a32a-84c81b3d3456"
 
 	// wait till requests are fulfilled before executing function
 	d3.queue()
