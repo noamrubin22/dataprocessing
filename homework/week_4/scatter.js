@@ -7,10 +7,23 @@
 
 // http://stats.oecd.org/# 
 
+
+// global variables
+var data; 
+var popRates; 
+var fertility;
+var countries;
+var properties;	
+var years;
+var oneYear;
+var year2011;
+var year2012;
+var year2013;
+
 // run code when file is unloaded
 window.onload = function() {
 
-	var population = "http://stats.oecd.org/SDMX-JSON/data/CSPCUBE/EVOPOP_G1+FERTILITY_T1.AUS+CZE+FIN+HUN+IRL+ISR+ITA+JPN+KOR+LUX+MEX+NLD+NZL+POL+ESP+GBR/all?startTime=2011&endTime=2013&dimensionAtObservation=allDimensions&pid=25e3f0d7-ac74-4b1b-a32a-84c81b3d3456"
+	var population = "http://stats.oecd.org/SDMX-JSON/data/CSPCUBE/EVOPOP_G1+FERTILITY_T1.AUS+FIN+IRL+ISR+ITA+KOR+LUX+MEX+NLD+NZL+ESP+GBR/all?startTime=2011&endTime=2013&dimensionAtObservation=allDimensions&pid=25e3f0d7-ac74-4b1b-a32a-84c81b3d3456"
 
 	d3.queue()
 	  .defer(d3.request, population)
@@ -32,7 +45,7 @@ window.onload = function() {
 		var countries = [];
 
 		// iterate over countries
-		for (var i = 0; i < 16; i++) {
+		for (var i = 0; i < 12; i++) {
 			for (var j = 0; j< 3; j++) {
 
 				// push countries into array
@@ -45,7 +58,7 @@ window.onload = function() {
 		for (var i = 0; i < 2; i++) {
 
 			// iterate over countries
-			for (var j = 0; j < 16; j++) {
+			for (var j = 0; j < 12; j++) {
 
 				// iterate over years
 				for (var k = 0; k < 3; k++) {
@@ -70,10 +83,7 @@ window.onload = function() {
 				}
 			}
 		}
-		// console.log(popRates);
-		// console.log(fertility);
-		// console.log(countries);
-		
+
 		// create dictionary for properties for each country
 		var properties = [];
 		
@@ -99,13 +109,22 @@ window.onload = function() {
 		}
 
 		// create list for years
-		var years = [year2011, year2012, year2013];
+		years = [year2011, year2012, year2013];
 		console.log(years);
 
-		oneYear = years[0];
+		oneYear = years[1];
 
- 	console.log('Yes, you can!')
-	
+		prepareData(oneYear)
+
+	}
+};
+
+function prepareData(oneYear) {
+
+	if (!oneYear) {
+		oneYear = year2011;
+	}
+
 	///////////////////////////// start creating scatterplot ///////////////////////////// 
 
 	/// Set the dimensions of the canvas / graph
@@ -116,34 +135,38 @@ window.onload = function() {
 	var w = fullWidth - margin.left - margin.right;
 	var h = fullHeight - margin.top - margin.bottom;
 
+	// remove
+	d3.select("svg").remove();
+
 	// create svg element to place shapes
 	var svg = d3.select("body") 
 				    .append("svg")    
 				        .attr("width", fullWidth)    
 				        .attr("height", fullHeight)
-				        .attr("background-color", "darkblue") 
 				    .append("g")
 				        .attr("transform", "translate(" + margin.left + ",0)")
-				        .attr("fill", "orange");
+				        .style("font-family", "verdana")
+				        .style("font-size", "13px")
+				        .attr("fill", "black");
 
 	///////////////////////////// define axes ///////////////////////////// 
 
 	// scale data
 	var xScale = d3.scaleLinear()
 	  					.domain([d3.min(oneYear, function(d) {
-	  						return d.fertility }), d3.max(oneYear, function(d) {
-	  							return d.fertility })])
-	                    .range([0, w - margin.left - margin.right], .1); 
+	  						return (d.fertility - 0.5)}), d3.max(oneYear, function(d) {
+	  							return (d.fertility + 0.5)})])
+	                    .range([0, w - margin.left - margin.right - 60], .1); 
 	                    
                     
 	var yScale = d3.scaleLinear()
 	                    .domain([d3.max(oneYear, function(d) {
-	  						return d.populationrate }), 0])
+	  						return (d.populationrate + 0.5)}), -.5])
 	                    .range([margin.left, h], .1);
 
 	// create a colorscale
-	var color = d3.scaleSequential(d3.interpolateRainbow)
-						.domain([0,20]);             
+	var color = d3.scaleSequential(d3.interpolateWarm)
+						.domain([0,12]);             
                     
 	// define axes
 	var xAxis = d3.axisBottom()
@@ -156,27 +179,28 @@ window.onload = function() {
 	// generate axes
 	svg.append("g")
 	    .attr("class", "axis")
-	    .attr("transform", "translate(0," + (h) + ")")
+	    .attr("transform", "translate(0," + h + ")")
 	    .call(xAxis);    
 	    
 	svg.append("g")
 	    .attr("class", "axis")
-	    .attr("transform", "translate(" + (0) + ",0)")
+	    .attr("transform", "translate(" + 0 + ",0)")
 	    .call(yAxis);
 
-	// append titles axes
+	// append title y-axis
 	svg.append("text")
 		.attr("class", "axis")
 		.attr("transform", "rotate(-90)")
-		.attr("y", margin.left - 85 )
+		.attr("y", margin.left - 80 )
 		.attr("x", 0 - (h/2) + margin.bottom + margin.top)
 		.attr("dy", "1em")
 		.text("Population rate")
 
+	// append title x-axis
 	svg.append("text")
 	    .attr("class", "axis")
-	    .attr("transform", "translate(" + (w - margin.right - margin.left) + " ," + 
-	                       (h + margin.top + 10) + ")")
+	    .attr("transform", "translate(" + (w - margin.left - 100) + " ," + 
+	                       (h + margin.top + 20) + ")")
 	   .style("text-anchor", "middle")
 	   .text("Fertility");
 
@@ -185,7 +209,7 @@ window.onload = function() {
 		  .data(oneYear)
 		  .enter()
 		  .append("circle")
-		  .attr("r", 5)
+		  .attr("r", 7)
 		  .attr("cx", function(d) { return xScale(d.fertility); })
 		  .attr("cy", function(d) { return yScale(d.populationrate); })
 		  .attr("fill", function(d, i) { return color(i) });
@@ -193,9 +217,9 @@ window.onload = function() {
 	///////////////////////////// create legend ////////////////////////////// 
 
 	// create countries for legend
-	var countries = ["Ireland", "Israël", "Great- Britain", "Japan", "Spain", "Hungary", "New Zealand", "Poland", "Czech Republic", "Mexico", "Luxembourg", "Finland", "Netherlands", "Australia", "Italy", "Korea"];
+	var countries = ["Ireland", "Israël", "Great- Britain", "Spain", "New Zealand", "Mexico", "Luxembourg", "Finland", "Netherlands", "Australia", "Italy", "Korea"];
 
-	//
+	// create legendn
 	var legend = svg.selectAll("legend")
 				.data(countries)
 				.enter()
@@ -211,9 +235,8 @@ window.onload = function() {
 		.attr("y", 50)
 		.attr('width', 10)
 		.attr('height', 10)
-		.style('fill', function(d,i ) { 
+		.style('fill', function(d,i) { 
 			return color(i) });
-
 
 	// add text with country names
 	legend.append('text')
@@ -224,6 +247,13 @@ window.onload = function() {
 			.style("font-size", "14px")
 			.text(function(d) {
 				return d });
-	   
-	};
+	
 };
+	   
+function changeYears(value) {
+	value = Number(value)
+	console.log(years)
+	oneYear = years[value];
+	prepareData(oneYear)
+};
+
