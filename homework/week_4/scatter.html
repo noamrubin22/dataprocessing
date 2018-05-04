@@ -14,8 +14,10 @@
 		<title>
 			The relation between fertility and population rate over the years
 		</title>
-		<h2>The relation between fertility and population rate</h2>
+		<h3>The relation between fertility and population rate</h3>
+		<h4>Created by Noam Rubin 10800565</h4>
 		<p> Is there an existing correlation between fertility and population rate? And could this relation differ between countries? In this scatterplot, data from different countries is visualized over 3 years. To see how the relation between fertility and population rate has changed over the years change the year through the drop-down menu </p>
+
 		<!-- load in d3 first -->
 		<script src="https://d3js.org/d3.v4.min.js"></script>
 		<script src="https://d3js.org/d3-collection.v1.min.js"></script>
@@ -25,20 +27,9 @@
 		<script src="scatter.js"></script>
 	</head>
 	<body>
-	<!-- 	<div class="dropdown">
-			<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-		    Dropdown button
-		  	</button>
-			<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-			    <button class="dropdown-item" type= "button" onclick= "
-			    <button class="dropdown-item" href="#">Another action</a>
-			    <button class="dropdown-item" href="#">Something else here</a>
-			</div>
-		</div> -->
 		<select id= "d3-dropdown" onchange=changeYears(value)>
 			<option value= 0>2011</option></option>
 			<option value= 1>2012</option></option>
 			<option value= 2>2013</option></option>
-		<p>Created by Noam Rubin 10800565</p>
 	</body>
 </html>

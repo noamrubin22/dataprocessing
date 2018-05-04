@@ -2,13 +2,11 @@
 /  	Studentnumber: 10800565
 / 	Course: Data processing
 /  	
-/ 	This code parses an online dataset and creates a scatterplot form it
+/ 	This code parses an online dataset and creates a scatterplot
+/ 	source: http://stats.oecd.org/# 
 */ 
 
-// http://stats.oecd.org/# 
-
-
-// global variables
+// initialize variables
 var data; 
 var popRates; 
 var fertility;
@@ -23,8 +21,10 @@ var year2013;
 // run code when file is unloaded
 window.onload = function() {
 
+	// create variable
 	var population = "http://stats.oecd.org/SDMX-JSON/data/CSPCUBE/EVOPOP_G1+FERTILITY_T1.AUS+FIN+IRL+ISR+ITA+KOR+LUX+MEX+NLD+NZL+ESP+GBR/all?startTime=2011&endTime=2013&dimensionAtObservation=allDimensions&pid=25e3f0d7-ac74-4b1b-a32a-84c81b3d3456"
 
+	// wait till requests are fulfilled before executing function
 	d3.queue()
 	  .defer(d3.request, population)
 	  .awaitAll(doFunction);
@@ -33,26 +33,25 @@ window.onload = function() {
 
 	if (error) throw error;
 
-		// create dataset variable
-		var dataset = JSON.parse(response[0].responseText).dataSets[0].observations;
-		console.log(dataset);
+		// create dataset variables
 		var data = JSON.parse(response[0].responseText);
-		console.log(data);
+		var dataset = data.dataSets[0].observations;
 
-		// create empty arrays for years
+		// create empty arrays for varables
 		var popRates = [];
 		var fertility = [];
 		var countries = [];
 
 		// iterate over countries
 		for (var i = 0; i < 12; i++) {
+
+			// iterate over years
 			for (var j = 0; j< 3; j++) {
 
 				// push countries into array
 				countries.push(data.structure.dimensions.observation[1].values[i].id);
 			}
 		};
-
 
 		// iterate over subjects
 		for (var i = 0; i < 2; i++) {
@@ -78,14 +77,13 @@ window.onload = function() {
 						else if (object.charAt(0) == 1) {
 							popRates.push(dataset[object][0]);
 						}
-					
 					}
 				}
 			}
 		}
 
-		// create dictionary for properties for each country
-		var properties = [];
+		// create list for properties for each country
+		properties = [];
 		
 		// create lists for years
 		year2011 = [];
@@ -108,19 +106,20 @@ window.onload = function() {
 			year2013.push(properties[j + 2]);
 		}
 
-		// create list for years
+		// create list for all years
 		years = [year2011, year2012, year2013];
-		console.log(years);
 
-		oneYear = years[1];
+		// define starting point scatterplot
+		oneYear = years[0];
 
-		prepareData(oneYear)
+	 createScatter(oneYear)
 
 	}
 };
 
-function prepareData(oneYear) {
+function createScatter(oneYear) {
 
+	// start with year 2011
 	if (!oneYear) {
 		oneYear = year2011;
 	}
@@ -130,8 +129,7 @@ function prepareData(oneYear) {
 	/// Set the dimensions of the canvas / graph
 	var margin = {top: 20, right: 20, bottom: 30, left: 40, legend: 10};
 	var fullWidth = 900;
-	var fullHeight = 450;
-	var padding = 2; 
+	var fullHeight = 450; 
 	var w = fullWidth - margin.left - margin.right;
 	var h = fullHeight - margin.top - margin.bottom;
 
@@ -149,7 +147,7 @@ function prepareData(oneYear) {
 				        .style("font-size", "13px")
 				        .attr("fill", "black");
 
-	///////////////////////////// define axes ///////////////////////////// 
+	///////////////////////////// create axes ///////////////////////////// 
 
 	// scale data
 	var xScale = d3.scaleLinear()
@@ -165,9 +163,9 @@ function prepareData(oneYear) {
 	                    .range([margin.left, h], .1);
 
 	// create a colorscale
-	var color = d3.scaleSequential(d3.interpolateWarm)
-						.domain([0,12]);             
-                    
+	var color = d3.scaleOrdinal(d3.schemeCategory20);
+	
+
 	// define axes
 	var xAxis = d3.axisBottom()
 	                .scale(xScale);
@@ -187,20 +185,19 @@ function prepareData(oneYear) {
 	    .attr("transform", "translate(" + 0 + ",0)")
 	    .call(yAxis);
 
-	// append title y-axis
+	// append title axes
 	svg.append("text")
 		.attr("class", "axis")
 		.attr("transform", "rotate(-90)")
-		.attr("y", margin.left - 80 )
+		.attr("y", margin.left - (2*margin.right)) 
 		.attr("x", 0 - (h/2) + margin.bottom + margin.top)
 		.attr("dy", "1em")
 		.text("Population rate")
 
-	// append title x-axis
 	svg.append("text")
 	    .attr("class", "axis")
 	    .attr("transform", "translate(" + (w - margin.left - 100) + " ," + 
-	                       (h + margin.top + 20) + ")")
+	                       (h + margin.top - margin.right - 5) + ")")
 	   .style("text-anchor", "middle")
 	   .text("Fertility");
 
@@ -217,43 +214,42 @@ function prepareData(oneYear) {
 	///////////////////////////// create legend ////////////////////////////// 
 
 	// create countries for legend
-	var countries = ["Ireland", "Israël", "Great- Britain", "Spain", "New Zealand", "Mexico", "Luxembourg", "Finland", "Netherlands", "Australia", "Italy", "Korea"];
+	var countryName = ["Ireland", "Israël", "Great- Britain", "Spain", "New Zealand", "Mexico", "Luxembourg", "Finland", "Netherlands", "Australia", "Italy", "Korea"];
 
 	// create legendn
 	var legend = svg.selectAll("legend")
-				.data(countries)
+				.data(countryName)
 				.enter()
 				.append("g")
-				.attr("class", "legend")
 				.attr("transform", function(d,i) {
 					 return 'translate(0,' + i * 20 + ')';
 					});
 
 	// add legend colors
 	legend.append("rect")
-		.attr('x', w + 10)
+		.attr("x", w + 10)
 		.attr("y", 50)
-		.attr('width', 10)
-		.attr('height', 10)
-		.style('fill', function(d,i) { 
+		.attr("width", 10)
+		.attr("height", 10)
+		.style("fill", function(d,i) { 
 			return color(i) });
 
 	// add text with country names
-	legend.append('text')
-			.attr('x', w + margin.right - 15)
-			.attr('y', 57)
-			.attr('dy', '.20em')
-			.style('text-anchor', 'end')
+	legend.append("text")
+			.attr("x", w + margin.right - 15)
+			.attr("y", 57)
+			.attr("dy", ".20em")
+			.style("text-anchor", "end")
 			.style("font-size", "14px")
 			.text(function(d) {
 				return d });
-	
 };
-	   
+
+// create function to change from year in dropdownmenu
 function changeYears(value) {
 	value = Number(value)
 	console.log(years)
 	oneYear = years[value];
-	prepareData(oneYear)
+ createScatter(oneYear)
 };
 
