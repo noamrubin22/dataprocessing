@@ -1,3 +1,3 @@
 # dataprocessing
-[Pages](https://github.io/noamrubin22/dataprocessing/index.html)
+[Pages](https://noamrubin22.github.io/dataprocessing/)
 
