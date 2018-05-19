@@ -164,7 +164,6 @@ function createScatter(oneYear) {
 
 	// create a colorscale
 	var color = d3.scaleOrdinal(d3.schemeCategory20);
-	
 
 	// define axes
 	var xAxis = d3.axisBottom()

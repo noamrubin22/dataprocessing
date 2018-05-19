@@ -1,0 +1,67 @@
+<!--
+- Name: Noam Rubin
+- Course: Dataprocessing
+- Date: 07/05/2018
+-
+- visualizes
+-->
+
+<!DOCTYPE HTML> 
+<html> 
+	<head>
+		<meta charset="utf-8">
+		<!-- load in d3 first -->
+		<script src="https://d3js.org/d3.v3.js"></script>
+		<script src="barchart.js"></script>
+		<script src="linked.js"></script>
+		<!-- links for world map -->
+		<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+		<script src="http://d3js.org/topojson.v1.min.js"></script>
+		<script src="http://d3js.org/queue.v1.min.js"></script>
+
+		<script src="https://d3js.org/d3-collection.v1.min.js"></script>
+		<script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+		<script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+		<script src="https://d3js.org/d3-request.v1.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+		<script src="/datamaps.world.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="linked.css">
+		
+	</head>
+	<body>
+		<div class="btn-group">
+        <button class="btn dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></button>
+	    <ul class="dropdown-menu">
+	      <li><a href="#" id="Men">Men</a></li>
+	      <li><a href="#" id="Women">Women</a></li>
+	    </ul>
+	  </div>
+	  <!-- /btn-group -->
+
+		<table class= "table table-bordered">
+			<tr>
+				<td>
+					<div id="container">
+						<h1> World map </h1>
+					</div>
+				</td>
+				<td><p> blablbalablablablab map of the world, click for </p>
+					<p id= "current"></p>
+				</td>
+			</tr>
+		</table>
+
+			<h3>The inflow of asylum and the rate of employment</h3>
+		<svg class="chart"></svg>
+			<h2> The percentage of employment between native and foreign people </h2>
+	
+		<div id="backgroundinfo">
+			<h4>Noam Rubin (10800565)</h4>
+			<h5> Source : 
+				<!-- ik kan geen andere link verkrijgen van deze site : -->
+				<a href="http://stats.oecd.org"> Employment rate</a> 
+			</h5>
+		</div>
+s
+	</body>
+</html>

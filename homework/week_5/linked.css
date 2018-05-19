@@ -1,0 +1,89 @@
+/* for the bar chart*/
+
+body {
+		background-position: center;
+		background-color: white;
+}
+
+h3 {
+    margin: 20px 25px;
+    text-align: center;
+    font-family: "Georgia";
+    font-size: 0.84em;
+}
+
+#title {
+	text-align: center;
+}
+
+/*dit werkt nog niet*/
+
+svg.chart {
+	position: left;
+	text-align: center;
+	width: 700px;
+	height: 800px;
+}
+
+/*svg.datamap {
+	position: left;
+	width: 900px;
+	height: 700px;
+}*/
+
+#container {
+	width: 700px;
+	height: 500px;
+	float: relative;
+	text-align: center;
+}
+
+#backgroundinfo {
+	margin: 20px 25px;
+	text-align: right;
+	font-family: "Georgia";
+}
+
+/* centreren map */
+.datamap {
+	margin-left: 30%;
+	margin-right: auto;
+}
+
+/* barchart */
+
+.bar {
+  fill: #bcbddc;
+}
+
+.bar:hover {
+  fill: #efedf5;
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.tooltip {
+  position: absolute;
+  padding: 10px;
+  font: 12px sans-serif;
+  background: #222;
+  color: #fff;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0.9;
+  visibility: hidden;
+}
